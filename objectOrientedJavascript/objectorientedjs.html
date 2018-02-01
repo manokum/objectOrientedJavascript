@@ -1,0 +1,207 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width = device-width ,initial-scale=1.0">
+  <title>Object Oriented JavaScript</title>
+</head>
+<body>
+<script type="text/javascript">
+**************************************************
+1. Different ways of creating an Object in javascript : https://coderwall.com/p/p5cf5w/different-ways-of-creating-an-object-in-javascript
+**************************************************
+A) Using the Object() constructor:  // not pretty much in use
+    var d = new Object();
+B) Using Object.create() method:
+    var a = Object.create(null);
+C) Using the bracket's syntactig sugar:
+    var b = {};
+D) Using a function constructor
+    var Obj = function(name) {
+        this.name = name
+    }
+    var c = new Obj("hello"); 
+
+***********************************************************
+// A basic JavaScript object with properties and a method
+***********************************************************
+var customer = {
+  name: 'Tom Smith',
+  speak: function(){
+    // this allows you to reference a specific objects value
+    // without knowing the objects name
+    return "My name is " + this.name;
+  },
+  // Objects can contain other objects
+  address: {
+    street: '123 Main St',
+    city: 'Pittsburgh',
+    state: 'PA'
+  }
+};
+document.write(customer.speak()+ "<br />");
+// You access properties and object properties like this
+document.write(customer.name + " lives at " + customer.address.street + "<br />");
+// You can add properties
+customer.address.country = "US";
+document.write(customer.address.country + "<br />");
+
+*****************************************************************
+                     CONSTRUCTOR 
+*****************************************************************
+// Creating multiple objects of the same type with Constructor Functions. Constructors provide the functions that classes provide in other languages
+function Person(name, street) {
+  // this allows us to refer to an object even though we
+  // don't know its name before it is created
+  this.name = name;
+  this.street = street;
+  this.info = function(){
+    return "My name is " + this.name + " and I live on " + this.street;
+  }
+}
+
+// You call constructor functions with new
+var bobSmith = new Person("Bob Smith", "234 Main St");
+document.write(bobSmith.info() + "<br />");
+// instanceof tells you if an object is of a certain type 
+document.write("Bob is a person : " + (bobSmith instanceof Person) + "<br />"); // should return a value of true
+// You can pass an object to a function and change values
+function changeName(person){
+  person.name = "Sue Smith";
+}
+changeName(bobSmith);
+document.write("Bob became " + bobSmith.name + "<br />");
+// Objects are only equal if they reference the same object
+var person1 = new Person("Paul", "123 Main");
+var person2 = new Person("Paul", "123 Main");
+document.write("Are they equal " + (person1 == person2) + "<br />");  //retuns false
+
+*********************************************************************************
+                    ----------Function PROTOTYPE ----------
+*********************************************************************************
+// Every function has a prototype property that contains an object
+// You can add properties and methods to the prototype object
+// and then when you call for them to execute they are used
+// just as if they belonged to the object
+function getSum(num1, num2){
+  return num1 + num2;
+}
+// Get the number of function arguments
+document.write("Num of arguments : " + getSum.length + "<br />");
+// You can add properties and methods to this object
+function Mammal(name){
+  this.name = name;
+  this.getInfo = function(){
+    return "The mammals name is " + this.name;
+  }
+}
+// Use prototype to add a property
+Mammal.prototype.sound = "Grrrrr";
+// Use it to add a method
+Mammal.prototype.makeSound = function() {
+  return this.name + " says " + this.sound;
+};
+var grover = new Mammal("Grover");
+document.write(grover.makeSound() + "<br />");
+
+// List all properties of an object
+for( var prop in grover){
+  document.write(prop + " : " + grover[prop] + "<br />");
+}
+
+// Check which property belongs to prototype vs. the object grover
+document.write("name Property of Grover : " + grover.hasOwnProperty("name") + "<br />");
+document.write("sound Property of Grover : " + grover.hasOwnProperty("sound") + "<br />");
+// You can add methods to built in JS objects
+Array.prototype.inArray = function inArray(value){
+  for(i = 0; i < this.length; i++){
+    if(this[i] === value){
+      return true;
+    }
+  }
+  return false;
+}
+var sampArray = [1,2,3,4,5];
+document.write("3 in array : " + sampArray.inArray(3) + "<br />");
+*************************************************************************
+             ---------- PRIVATE PROPERTIES ----------
+*************************************************************************
+// All properties in an object are public in that any function can modify or delete these properties 
+// You can make properties private by declaring them as variables in a constructor
+function SecretCode(){
+  // This value can't be accessed directly
+  var secretNum = 78;
+  // This function can access secretNum
+  this.guessNum = function(num){
+    if(num > 78){
+      return "Lower";
+    } else if(num < 78){
+      return "Higher";
+    } else {
+      return "You Guessed It";
+    }
+  }
+}
+var secret = new SecretCode();
+// Returns undefined
+document.write("Value of secretNum : " + secret.secretNum + "<br />");
+// returns the desired result
+document.write("Is 70 the number : " + secret.guessNum(70) + "<br />");
+// Even if we add another function it can't access the secretNum
+SecretCode.prototype.getSecret = function(){
+  return this.secretNum;
+}
+document.write("The secret number is " + secret.getSecret() + "<br />");
+*************************************************************************************
+// ---------- INHERITANCE ----------
+*************************************************************************************
+// When we ask for a property if it isn't found in the main object then it is searched for in the prototype object. We are able
+// to inherit methods and variables from any object in a chain of objects.
+function Animal(){
+  this.name = "Animal";
+  // toString is a function in the main Object that every object inherits from
+  this.toString = function() {
+    return "My name is : " + this.name;
+  };
+}
+function Canine(){
+  this.name = "Canine";
+}
+function Wolf(){
+  this.name = "Wolf";
+}
+// Overwrite the prototype for Canine and Wolf
+Canine.prototype = new Animal();
+Wolf.prototype = new Canine();
+// After you overwrite prototype its constructor points to the
+// main object object so you have to reset the constructor after
+Canine.prototype.constructor = Canine;
+Wolf.prototype.constructor = Wolf;
+var arcticWolf = new Wolf();
+// Wolf inherits toString from Animal
+document.write(arcticWolf.toString() + "<br />");
+document.write("Wolf instance of Animal : " + (arcticWolf instanceof Animal) + "<br />"); // returns true in this scenario
+
+// Properties added to any object in the chain is inherited
+Animal.prototype.sound = "Grrrrr";
+Animal.prototype.getSound = function(){
+  return this.name + " says " + this.sound;
+}
+Canine.prototype.sound = "Woof";
+Wolf.prototype.sound = "Grrrr Wooof";
+document.write(arcticWolf.getSound() + "<br />");
+// More often then not it makes more sense to just inherit the  prototype to speed up the lookup process
+function Rodent(){
+  this.name = "Rodent";
+}
+function Rat(){
+  this.name = "Rat";
+}
+Rodent.prototype = new Animal();
+Rat.prototype = Rodent.prototype;
+Rodent.prototype.constructor = Rodent;
+Rat.prototype.constructor = Rat;
+var caneRat = new Rat();
+// Wolf inherits toString from Animal
+document.write(caneRat.toString() + "<br />");
+
